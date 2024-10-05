@@ -1,0 +1,61 @@
+DDL - VIDEOJUEGOS
+
+DATABASE VideoGameStore;
+USE VideoGameStore;
+
+TABLE Category (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+
+TABLE Product (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    category_id INT,
+    FOREIGN KEY (category_id) REFERENCES Category(id)
+);
+
+TABLE Order (
+    id INT AUTO_INCREMENT PRIMARY KEY
+);
+
+TABLE Order_line (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT,
+    product_id INT,
+    quantity INT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES Order(id),
+    FOREIGN KEY (product_id) REFERENCES Product(id)
+);
+
+TABLE Food (
+    product_id INT PRIMARY KEY,
+    expiration_date DATE,
+    calories INT,
+    FOREIGN KEY (product_id) REFERENCES Product(id)
+);
+
+TABLE Furniture (
+    product_id INT PRIMARY KEY,
+    manufacture_date DATE,
+    FOREIGN KEY (product_id) REFERENCES Product(id)
+);
+
+
+DML - VIDEOJUEGOS
+
+INSERT INTO Category (name) VALUES ('Food');
+INSERT INTO Category (name) VALUES ('Furniture');
+
+INSERT INTO Product (name, price, category_id) VALUES ('Apple', 0.50, 1);
+INSERT INTO Product (name, price, category_id) VALUES ('Chair', 49.99, 2);
+
+INSERT INTO Food (product_id, expiration_date, calories) VALUES (1, '2024-12-31', 52);
+
+INSERT INTO Furniture (product_id, manufacture_date) VALUES (2, '2023-09-01');
+
+INSERT INTO Order (id) VALUES (1);
+
+INSERT INTO order_line (order_id, product_id, quantity) VALUES (1, 1, 5);
+INSERT INTO order_line (order_id, product_id, quantity) VALUES (1, 2, 2);
