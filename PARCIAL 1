@@ -1,0 +1,298 @@
+Parcial 1 / Parte 1
+Jair Navarro - Sebastian Bermúdez
+
+CREATE DATABASE SISTEMASDEPUNTOSDEVENTAS;
+
+USE SISTEMASDEPUNTOSDEVENTAS;
+
+CREATE TABLE oficinas (
+    id_oficina VARCHAR(10) PRIMARY KEY,
+    ciudad VARCHAR(50),
+    telefono VARCHAR(50),
+    direccion VARCHAR(50),
+    departamento VARCHAR(50),
+    pais VARCHAR(50),
+    codigoPostal VARCHAR(15),
+    continente VARCHAR(10),
+    tipoOficina ENUM('central', 'regional'),
+    esActiva BOOLEAN,
+    codigoUnico VARCHAR(10) UNIQUE
+);
+
+CREATE TABLE empleados (
+    documento INT(11) PRIMARY KEY,
+    apellido VARCHAR(50),
+    nombre VARCHAR(50),
+    extension VARCHAR(10),
+    email VARCHAR(100) UNIQUE,
+    id_oficina VARCHAR(10),
+    jefe INT(11),
+    cargo VARCHAR(50),
+    tipoContrato ENUM('permanente', 'temporal'),
+    esGerente BOOLEAN,
+    codigoEmpleado VARCHAR(10) UNIQUE,
+    FOREIGN KEY (id_oficina) REFERENCES oficinas(id_oficina)
+);
+
+CREATE TABLE clientes (
+    id_cliente INT(11) PRIMARY KEY,
+    empresa VARCHAR(50),
+    apellido VARCHAR(50),
+    nombre VARCHAR(50),
+    telefono VARCHAR(50),
+    direccion VARCHAR(50),
+    ciudad VARCHAR(50),
+    departamento VARCHAR(50),
+    codigoPostal VARCHAR(15),
+    pais VARCHAR(50),
+    empleadoAtiende INT(11),
+    limiteCredito DOUBLE,
+    tipoCliente ENUM('regular', 'premium'),
+    esActivo BOOLEAN,
+    codigoCliente VARCHAR(10) UNIQUE,
+    FOREIGN KEY (empleadoAtiende) REFERENCES empleados(documento)
+);
+
+CREATE TABLE ordenes (
+    id_orden INT(11) PRIMARY KEY,
+    fechaRecibido DATE,
+    fechaLimiteEntrega DATE,
+    fechaEntrega DATE,
+    estado VARCHAR(15),
+    observacion TEXT,
+    id_cliente INT(11),
+    tipoOrden ENUM('urgente', 'regular'),
+    esPagada BOOLEAN,
+    codigoOrden VARCHAR(10) UNIQUE,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
+);
+
+CREATE TABLE productos (
+    id_producto VARCHAR(15) PRIMARY KEY,
+    nombreProducto VARCHAR(70),
+    id_lineaProducto INT(5),
+    escala VARCHAR(10),
+    cantidad INT(6),
+    precioVenta DOUBLE,
+    MSRP DOUBLE,
+    tipoProducto ENUM('electrónico', 'mecánico'),
+    esActivo BOOLEAN,
+    codigoProducto VARCHAR(10) UNIQUE
+);
+
+CREATE TABLE pagos (
+    id_cliente INT(11),
+    numeroFactura VARCHAR(50) PRIMARY KEY,
+    fechaPago DATE,
+    totalPago DOUBLE,
+    tipoPago ENUM('transferencia', 'efectivo'),
+    esConfirmado BOOLEAN,
+    codigoPago VARCHAR(10) UNIQUE,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
+);
+
+CREATE TABLE detallesOrdenes (
+    id_orden INT(11),
+    id_producto VARCHAR(15),
+    cantidadPedido INT(11),
+    valorUnitario DOUBLE,
+    ordenEntrega INT(6),
+    PRIMARY KEY (id_orden, id_producto),
+    FOREIGN KEY (id_orden) REFERENCES ordenes(id_orden),
+    FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
+);
+
+CREATE TABLE lineasProductos (
+    id_lineaproducto INT(5) PRIMARY KEY,
+    nombreLinea VARCHAR(50),
+    textoDescripcion VARCHAR(4000),
+    htmlDescripcion VARCHAR(200),
+    imagen VARCHAR(200),
+    tipoLinea ENUM('principal', 'secundaria'),
+    esVisible BOOLEAN,
+    codigoLinea VARCHAR(10) UNIQUE
+);
+
+INSERT INTO oficinas (id_oficina, ciudad, telefono, direccion, departamento, pais, codigoPostal, continente, tipoOficina, esActiva, codigoUnico)
+VALUES
+('OF01', 'Madrid', '123456789', 'Calle Falsa 123', 'Ventas', 'España', '28080', 'Europa', 'central', TRUE, 'OFC001'),
+('OF02', 'Barcelona', '987654321', 'Calle Real 456', 'Soporte', 'España', '08080', 'Europa', 'regional', TRUE, 'OFC002'),
+('OF03', 'Valencia', '123123123', 'Avenida Siempre Viva', 'Marketing', 'España', '46001', 'Europa', 'regional', TRUE, 'OFC003'),
+('OF04', 'Sevilla', '321321321', 'Calle Luna 789', 'RRHH', 'España', '41001', 'Europa', 'regional', FALSE, 'OFC004'),
+('OF05', 'Bilbao', '456456456', 'Paseo del Sol', 'Finanzas', 'España', '48001', 'Europa', 'central', TRUE, 'OFC005');
+
+INSERT INTO empleados (documento, apellido, nombre, extension, email, id_oficina, jefe, cargo, tipoContrato, esGerente, codigoEmpleado)
+VALUES
+(1, 'Perez', 'Juan', '123', 'juan.perez@mail.com', 'OF01', 3, 'Analista', 'permanente', FALSE, 'E001'),
+(2, 'Garcia', 'Ana', '124', 'ana.garcia@mail.com', 'OF02', 4, 'Gerente', 'permanente', TRUE, 'E002'),
+(3, 'Lopez', 'Mario', '125', 'mario.lopez@mail.com', 'OF03', 1, 'Asistente', 'temporal', FALSE, 'E003'),
+(4, 'Martinez', 'Carla', '126', 'carla.martinez@mail.com', 'OF01', 2, 'Supervisor', 'permanente', FALSE, 'E004'),
+(5, 'Sanchez', 'Luis', '127', 'luis.sanchez@mail.com', 'OF02', 3, 'Consultor', 'temporal', FALSE, 'E005');
+
+INSERT INTO clientes (id_cliente, empresa, apellido, nombre, telefono, direccion, ciudad, departamento, codigoPostal, pais, empleadoAtiende, limiteCredito, tipoCliente, esActivo, codigoCliente)
+VALUES
+(1, 'Empresa1', 'Diaz', 'Carlos', '987654321', 'Calle 1', 'Madrid', 'Ventas', '28080', 'España', 1, 10000, 'premium', TRUE, 'CL001'),
+(2, 'Empresa2', 'Ruiz', 'Ana', '987123654', 'Calle 2', 'Barcelona', 'Soporte', '08080', 'España', 2, 5000, 'regular', TRUE, 'CL002'),
+(3, 'Empresa3', 'Mendez', 'Jose', '321654987', 'Calle 3', 'Valencia', 'Marketing', '46001', 'España', 3, 7500, 'regular', TRUE, 'CL003'),
+(4, 'Empresa4', 'Castro', 'Maria', '654987321', 'Calle 4', 'Sevilla', 'RRHH', '41001', 'España', 4, 15000, 'premium', TRUE, 'CL004'),
+(5, 'Empresa5', 'Pardo', 'Luis', '789321654', 'Calle 5', 'Bilbao', 'Finanzas', '48001', 'España', 5, 20000, 'premium', FALSE, 'CL005');
+
+INSERT INTO ordenes (id_orden, fechaRecibido, fechaLimiteEntrega, fechaEntrega, estado, observacion, id_cliente, tipoOrden, esPagada, codigoOrden)
+VALUES
+(1, '2024-01-01', '2024-01-10', '2024-01-09', 'entregado', 'Entrega rápida', 1, 'urgente', TRUE, 'ORD001'),
+(2, '2024-02-01', '2024-02-15', '2024-02-14', 'entregado', 'Cliente satisfecho', 2, 'regular', TRUE, 'ORD002'),
+(3, '2024-03-01', '2024-03-20', '2024-03-19', 'pendiente', 'Falta entregar', 3, 'regular', FALSE, 'ORD003'),
+(4, '2024-04-01', '2024-04-25', '2024-04-24', 'pendiente', 'Cliente solicita cambio', 4, 'urgente', FALSE, 'ORD004'),
+(5, '2024-05-01', '2024-05-30', '2024-05-29', 'entregado', 'Entrega perfecta', 5, 'regular', TRUE, 'ORD005');
+
+INSERT INTO productos (id_producto, nombreProducto, id_lineaProducto, escala, cantidad, precioVenta, MSRP, tipoProducto, esActivo, codigoProducto)
+VALUES
+('P001', 'Producto 1', 1, '1:10', 100, 50.0, 55.0, 'electrónico', TRUE, 'PRD001'),
+('P002', 'Producto 2', 2, '1:20', 200, 30.0, 35.0, 'mecánico', TRUE, 'PRD002'),
+('P003', 'Producto 3', 3, '1:30', 150, 45.0, 50.0, 'electrónico', TRUE, 'PRD003'),
+('P004', 'Producto 4', 4, '1:40', 120, 70.0, 75.0, 'mecánico', TRUE, 'PRD004'),
+('P005', 'Producto 5', 5, '1:50', 250, 90.0, 95.0, 'electrónico', FALSE, 'PRD005');
+
+INSERT INTO pagos (id_cliente, numeroFactura, fechaPago, totalPago, tipoPago, esConfirmado, codigoPago)
+VALUES
+(1, 'F001', '2024-01-10', 1000, 'transferencia', TRUE, 'PAG001'),
+(2, 'F002', '2024-02-16', 500, 'efectivo', TRUE, 'PAG002'),
+(3, 'F003', '2024-03-20', 750, 'transferencia', FALSE, 'PAG003'),
+(4, 'F004', '2024-04-30', 1500, 'efectivo', TRUE, 'PAG004'),
+(5, 'F005', '2024-05-31', 2000, 'transferencia', TRUE, 'PAG005');
+
+INSERT INTO detallesOrdenes (id_orden, id_producto, cantidadPedido, valorUnitario, ordenEntrega)
+VALUES
+(1, 'P001', 10, 50.0, 1),
+(2, 'P002', 5, 30.0, 2),
+(3, 'P003', 7, 45.0, 3),
+(4, 'P004', 8, 70.0, 4),
+(5, 'P005', 12, 90.0, 5);
+
+INSERT INTO lineasProductos (id_lineaproducto, nombreLinea, textoDescripcion, htmlDescripcion, imagen, tipoLinea, esVisible, codigoLinea)
+VALUES
+(1, 'Línea 1', 'Descripción línea 1', '<p>Línea 1</p>', 'imagen1.jpg', 'principal', TRUE, 'LIN001'),
+(2, 'Línea 2', 'Descripción línea 2', '<p>Línea 2</p>', 'imagen2.jpg', 'secundaria', TRUE, 'LIN002'),
+(3, 'Línea 3', 'Descripción línea 3', '<p>Línea 3</p>', 'imagen3.jpg', 'principal', TRUE, 'LIN003'),
+(4, 'Línea 4', 'Descripción línea 4', '<p>Línea 4</p>', 'imagen4.jpg', 'secundaria', FALSE, 'LIN004'),
+(5, 'Línea 5', 'Descripción línea 5', '<p>Línea 5</p>', 'imagen5.jpg', 'principal', TRUE, 'LIN005');
+
+Parte 2
+CREATE DATABASE INDUSTRIASSTARK;
+
+USE INDUSTRIASSTARK;
+
+CREATE TABLE Empleados (
+    empleado_id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100),
+    apellido VARCHAR(100),
+    fecha_nacimiento DATE,
+    direccion VARCHAR(255),
+    telefono VARCHAR(15),
+    foto BLOB,
+    estado_civil ENUM('Soltero', 'Casado', 'Divorciado'),
+    activo BOOLEAN,
+    correo_electronico VARCHAR(100) UNIQUE
+);
+
+CREATE TABLE Educacion (
+    educacion_id INT PRIMARY KEY AUTO_INCREMENT,
+    empleado_id INT,
+    nivel_educativo VARCHAR(50),
+    institucion VARCHAR(100),
+    anio_graduacion YEAR,
+    titulacion ENUM('Sí', 'No'),
+    es_bolsa_trabajo BOOLEAN,
+    FOREIGN KEY (empleado_id) REFERENCES Empleados(empleado_id)
+);
+
+CREATE TABLE Categorias (
+    categoria_id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_categoria VARCHAR(100) UNIQUE,
+    retribucion_economica DECIMAL(10,2),
+    nivel_responsabilidad ENUM('Bajo', 'Medio', 'Alto'),
+    es_admin BOOLEAN
+);
+
+CREATE TABLE Detalle_Quincenal (
+    detalle_id INT PRIMARY KEY AUTO_INCREMENT,
+    empleado_id INT,
+    horas_trabajadas DECIMAL(5,2),
+    deducciones DECIMAL(10,2),
+    salario_bruto DECIMAL(10,2),
+    bonificacion DECIMAL(10,2),
+    pago_total DECIMAL(10,2),
+    periodo VARCHAR(7),
+    es_comision BOOLEAN,
+    FOREIGN KEY (empleado_id) REFERENCES Empleados(empleado_id)
+);
+
+INSERT INTO Empleados (nombre, apellido, fecha_nacimiento, direccion, telefono, foto, estado_civil, activo, correo_electronico) VALUES
+('Juan', 'Pérez', '1990-01-15', 'Calle 1', '1234567890', NULL, 'Soltero', TRUE, 'juan.perez@example.com'),
+('Ana', 'García', '1985-06-20', 'Calle 2', '0987654321', NULL, 'Casado', TRUE, 'ana.garcia@example.com'),
+('Luis', 'Martínez', '1982-03-10', 'Calle 3', '1234567891', NULL, 'Divorciado', TRUE, 'luis.martinez@example.com'),
+('María', 'Rodríguez', '1995-05-05', 'Calle 4', '1234567892', NULL, 'Soltero', TRUE, 'maria.rodriguez@example.com'),
+('Pedro', 'López', '1988-11-30', 'Calle 5', '1234567893', NULL, 'Casado', TRUE, 'pedro.lopez@example.com'),
+('Laura', 'Fernández', '1992-02-25', 'Calle 6', '1234567894', NULL, 'Soltero', TRUE, 'laura.fernandez@example.com'),
+('Diego', 'Torres', '1991-07-12', 'Calle 7', '1234567895', NULL, 'Casado', TRUE, 'diego.torres@example.com'),
+('Sofía', 'Hernández', '1987-09-14', 'Calle 8', '1234567896', NULL, 'Divorciado', TRUE, 'sofia.hernandez@example.com'),
+('Ricardo', 'Morales', '1994-03-05', 'Calle 9', '1234567897', NULL, 'Soltero', TRUE, 'ricardo.morales@example.com'),
+('Claudia', 'González', '1989-01-30', 'Calle 10', '1234567898', NULL, 'Casado', TRUE, 'claudia.gonzalez@example.com'),
+('Javier', 'Vega', '1993-05-20', 'Calle 11', '1234567899', NULL, 'Divorciado', TRUE, 'javier.vega@example.com'),
+('Patricia', 'Reyes', '1990-11-28', 'Calle 12', '1234567888', NULL, 'Soltero', TRUE, 'patricia.reyes@example.com'),
+('Fernando', 'Jiménez', '1988-06-15', 'Calle 13', '1234567877', NULL, 'Casado', TRUE, 'fernando.jimenez@example.com'),
+('Carla', 'Castillo', '1995-04-02', 'Calle 14', '1234567866', NULL, 'Divorciado', TRUE, 'carla.castillo@example.com'),
+('Jorge', 'Silva', '1986-08-10', 'Calle 15', '1234567855', NULL, 'Soltero', TRUE, 'jorge.silva@example.com'),
+('Isabel', 'Mendoza', '1994-12-18', 'Calle 16', '1234567844', NULL, 'Casado', TRUE, 'isabel.mendoza@example.com'),
+('Arturo', 'Núñez', '1981-03-20', 'Calle 17', '1234567833', NULL, 'Divorciado', TRUE, 'arturo.nunez@example.com'),
+('Elena', 'Ponce', '1993-10-07', 'Calle 18', '1234567822', NULL, 'Soltero', TRUE, 'elena.ponce@example.com'),
+('Samuel', 'Cruz', '1984-09-29', 'Calle 19', '1234567811', NULL, 'Casado', TRUE, 'samuel.cruz@example.com'),
+('Verónica', 'Ríos', '1990-04-05', 'Calle 20', '1234567800', NULL, 'Divorciado', TRUE, 'veronica.rios@example.com');
+
+INSERT INTO Educacion (empleado_id, nivel_educativo, institucion, anio_graduacion, titulacion, es_bolsa_trabajo) VALUES
+(1, 'Licenciatura', 'Universidad A', 2012, 'Sí', TRUE),
+(2, 'Maestría', 'Universidad B', 2015, 'Sí', FALSE),
+(3, 'Diplomado', 'Instituto C', 2018, 'No', TRUE),
+(4, 'Licenciatura', 'Universidad D', 2017, 'Sí', FALSE),
+(5, 'Secundaria', 'Escuela E', 2006, 'Sí', TRUE);
+
+INSERT INTO Categorias (nombre_categoria, retribucion_economica, nivel_responsabilidad, es_admin) VALUES
+('Desarrollador', 600.00, 'Alto', FALSE),
+('Diseñador', 500.00, 'Medio', FALSE),
+('Gerente', 1000.00, 'Alto', TRUE),
+('Analista', 700.00, 'Medio', FALSE),
+('Asistente', 400.00, 'Bajo', FALSE);
+
+INSERT INTO Detalle_Quincenal (empleado_id, horas_trabajadas, deducciones, salario_bruto, bonificacion, pago_total, periodo, es_comision) VALUES
+(1, 80, 50, 600.00, 100.00, 650.00, '2024-10', FALSE),
+(2, 85, 30, 500.00, 70.00, 540.00, '2024-10', TRUE),
+(3, 90, 60, 700.00, 150.00, 790.00, '2024-10', FALSE),
+(4, 75, 20, 400.00, 50.00, 430.00, '2024-10', TRUE),
+(5, 100, 40, 450.00, 80.00, 490.00, '2024-10', FALSE),
+(6, 95, 25, 550.00, 90.00, 615.00, '2024-10', TRUE),
+(7, 110, 15, 700.00, 100.00, 785.00, '2024-10', FALSE),
+(8, 80, 35, 500.00, 60.00, 525.00, '2024-10', TRUE),
+(9, 70, 55, 650.00, 70.00, 665.00, '2024-10', FALSE),
+(10, 120, 50, 800.00, 120.00, 870.00, '2024-10', TRUE),
+(11, 75, 10, 400.00, 30.00, 420.00, '2024-10', FALSE),
+(12, 90, 20, 550.00, 60.00, 590.00, '2024-10', TRUE),
+(13, 85, 15, 600.00, 90.00, 675.00, '2024-10', FALSE),
+(14, 100, 35, 700.00, 80.00, 745.00, '2024-10', TRUE),
+(15, 90, 45, 550.00, 70.00, 575.00, '2024-10', FALSE),
+(16, 75, 20, 450.00, 40.00, 470.00, '2024-10', TRUE),
+(17, 95, 30, 650.00, 100.00, 720.00, '2024-10', FALSE),
+(18, 100, 25, 700.00, 120.00, 795.00, '2024-10', TRUE),
+(19, 80, 10, 400.00, 50.00, 440.00, '2024-10', FALSE),
+(20, 90, 15, 550.00, 90.00, 625.00, '2024-10', TRUE);
+
+
+INSERT PARTE 2
+
+SELECT e.nombre, e.apellido, d.pago_total 
+FROM Empleados e
+JOIN Detalle_Quincenal d ON e.empleado_id = d.empleado_id
+WHERE d.pago_total > 500.00;
+
+DIAGRAMA PARTE 2
+
+https://drive.google.com/file/d/19zEVmJm1FiI2xTOvj3xN9yY0Ijiidlnx/view?usp=sharing
