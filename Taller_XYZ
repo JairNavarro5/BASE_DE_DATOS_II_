@@ -1,0 +1,179 @@
+Taller - empres XYZ
+Jair Navarro
+
+Base de datos empres XYZ (Codigo)
+
+CREATE DATABASE taller_xyz;
+USE taller_xyz;
+
+CREATE TABLE Perfiles (
+    perfil_id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_rol VARCHAR(50),
+    fecha_vigencia DATE,
+    descripcion VARCHAR(255),
+    encargado VARCHAR(50)
+);
+
+CREATE TABLE Usuarios (
+    usuario_id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50),
+    apellido VARCHAR(50),
+    estado VARCHAR(20),
+    contraseña VARCHAR(255),
+    cargo VARCHAR(50),
+    salario DECIMAL(10, 2),
+    fecha_ingreso DATE,
+    perfil_id INT,
+    FOREIGN KEY (perfil_id) REFERENCES Perfiles(perfil_id)
+);
+
+CREATE TABLE Login (
+  login_id INT PRIMARY KEY AUTO_INCREMENT,
+  usuario_id INT,
+  fecha_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES Usuarios(usuario_id)
+);
+
+CREATE TABLE Actividades (
+    actividad_id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre_actividad VARCHAR(100),
+    fecha DATE,
+    puntos INT
+);
+
+CREATE TABLE Fidelizacion (
+  fidelizacion_id INT PRIMARY KEY AUTO_INCREMENT,
+  usuario_id INT,
+  actividad_id INT,
+  puntos_acumulados INT,
+  FOREIGN KEY (usuario_id) REFERENCES Usuarios(usuario_id),
+  FOREIGN KEY (actividad_id) REFERENCES Actividades(actividad_id)
+);
+
+INSERT INTO Perfiles (nombre_rol, fecha_vigencia, descripcion, encargado) VALUES
+('Gerente General', '2025-12-31', 'Responsable de la gestión general de la empresa', 'Carlos González'),
+('Recursos Humanos', '2025-12-31', 'Encargado de la administración de personal y contrataciones', 'Marta Jiménez'),
+('Ventas Corporativas', '2025-12-31', 'Encargado de ventas y relaciones con clientes corporativos', 'Roberto Pérez'),
+('Soporte Técnico', '2025-12-31', 'Responsable del soporte y mantenimiento de sistemas', 'Sofía Martínez'),
+('Finanzas', '2025-12-31', 'Manejo de presupuesto y contabilidad', 'Eduardo López'),
+('Marketing Digital', '2025-12-31', 'Estrategias de publicidad y redes sociales', 'Isabel Fernández'),
+('Desarrollo TI', '2025-12-31', 'Encargado de desarrollo de software e infraestructura', 'Alejandro García'),
+('Producción', '2025-12-31', 'Encargado de procesos de manufactura y producción', 'Laura Rodríguez'),
+('Distribución y Logística', '2025-12-31', 'Control y manejo de inventarios y envíos', 'Pablo Silva'),
+('Compras', '2025-12-31', 'Gestión de proveedores y compras', 'Fernando Ruiz');
+
+INSERT INTO Usuarios (nombre, apellido, estado, contraseña, cargo, salario, fecha_ingreso, perfil_id) VALUES
+('Ana', 'Pérez', 'Activo', 'abc123seguro', 'Gerente General', 2100.00, '2023-01-10', 1),
+('Luis', 'Hernández', 'Activo', 'def456seguro', 'Recursos Humanos', 1300.00, '2022-05-12', 2),
+('Pedro', 'Gómez', 'Activo', 'ghi789seguro', 'Ventas Corporativas', 1450.00, '2023-03-20', 3),
+('Raquel', 'Sánchez', 'Activo', 'jkl012seguro', 'Soporte Técnico', 1250.00, '2022-07-25', 4),
+('Juan', 'Rodríguez', 'Activo', 'mno345seguro', 'Finanzas', 1600.00, '2021-11-09', 5),
+('Eva', 'Martínez', 'Activo', 'pqr678seguro', 'Marketing Digital', 1450.00, '2020-09-18', 6),
+('José', 'Jiménez', 'Activo', 'stu901seguro', 'Desarrollo TI', 1700.00, '2023-01-25', 7),
+('Marta', 'García', 'Activo', 'vwx234seguro', 'Producción', 1300.00, '2023-04-14', 8),
+('Oscar', 'López', 'Activo', 'yz123seguro', 'Distribución y Logística', 1550.00, '2021-08-10', 9),
+('Celia', 'Gutiérrez', 'Activo', 'abc234seguro', 'Compras', 1400.00, '2023-02-05', 10);
+
+INSERT INTO Login (usuario_id, fecha_login) VALUES
+(1, '2024-01-15 09:30:00'),
+(2, '2024-01-15 09:35:00'),
+(3, '2024-01-15 09:40:00'),
+(4, '2024-01-15 09:45:00'),
+(5, '2024-01-15 09:50:00'),
+(6, '2024-01-15 09:55:00'),
+(7, '2024-01-15 10:00:00'),
+(8, '2024-01-15 10:05:00'),
+(9, '2024-01-15 10:10:00'),
+(10, '2024-01-15 10:15:00');
+
+INSERT INTO Actividades (nombre_actividad, fecha, puntos) VALUES
+('Taller de Innovación', '2024-04-10', 60),
+('Curso de Liderazgo', '2024-04-20', 80),
+('Seminario de Marketing Digital', '2024-05-05', 90),
+('Entrenamiento de Excel', '2024-05-15', 70),
+('Capacitación de Seguridad Informática', '2024-06-01', 85),
+('Jornada de Bienestar Laboral', '2024-06-10', 75),
+('Foro de Innovación Empresarial', '2024-06-15', 95),
+('Workshop de Productividad', '2024-06-20', 100),
+('Taller de Comunicación Eficaz', '2024-07-05', 65),
+('Charla sobre Inteligencia Artificial', '2024-07-15', 90),
+('Ciclo de Conferencias de Tecnología', '2024-08-10', 80),
+('Seminario de Finanzas Personales', '2024-08-20', 85),
+('Reunión Anual de Estrategias', '2024-09-01', 95),
+('Taller de Desarrollo Profesional', '2024-09-10', 100),
+('Encuentro de Innovación y Creatividad', '2024-09-15', 90);
+
+INSERT INTO Fidelizacion (usuario_id, actividad_id, puntos_acumulados) VALUES
+(1, 1, 60),
+(2, 2, 75),
+(3, 3, 85),
+(4, 4, 90),
+(5, 5, 80),
+(6, 6, 95),
+(7, 7, 100),
+(8, 8, 90),
+(9, 9, 75),
+(10, 10, 85);
+
+
+Diagrama Entidada-Relacion
+https://drive.google.com/file/d/187aYepIl6Qs5AwE91jp0Rcv8xbFGn2G3/view?usp=sharing
+
+
+Vistas
+
+Vista 1
+PuntosAcumulados: Esta vista permite ver el total de puntos acumulados por cada usuario en todas las actividades en las que ha participado.
+
+Codigo
+USE taller_xyz;
+
+CREATE VIEW PuntosAcumulados AS
+SELECT u.usuario_id, u.nombre, u.apellido, SUM(f.puntos_acumulados) AS total_puntos
+FROM Usuarios u
+JOIN Fidelizacion f ON u.usuario_id = f.usuario_id
+GROUP BY u.usuario_id;
+
+Consultar
+SELECT * FROM PuntosAcumulados;
+
+
+Vista 2
+Vista de Usuarios Activos: muestra los usuarios que están "Activos", junto con su perfil, fecha de ingreso y salario, lo cual facilita el análisis del personal vigente en la empresa.
+
+Codigo
+USE taller_xyz; 
+
+CREATE VIEW VistaUsuariosActivos AS
+SELECT u.usuario_id, u.nombre, u.apellido, u.estado, u.cargo, u.salario, u.fecha_ingreso, p.nombre_rol AS perfil
+FROM Usuarios u
+JOIN Perfiles p ON u.perfil_id = p.perfil_id
+WHERE u.estado = 'Activo';
+
+Consultar
+SELECT * FROM VistaUsuariosActivos;
+
+
+Procedimientos Almacenados
+
+Procedimiento almacenado para contar usuarios fidelizados: Calcula y muestra el número total de usuarios que han participado en el programa de fidelización y tienen puntos acumulados.
+
+Codigo
+USE taller_xyz;
+
+DELIMITER //
+
+CREATE PROCEDURE ContarUsuariosFidelizados()
+BEGIN
+    SELECT COUNT(DISTINCT usuario_id) AS total_usuarios_fidelizados
+    FROM Fidelizacion
+    WHERE puntos_acumulados > 0;
+END //
+
+DELIMITER ;
+
+Ejecutar
+CALL ContarUsuariosFidelizados();
+
+
+                                                            
