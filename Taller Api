@@ -1,1 +1,177 @@
+Taller - API Base de datos II
+Jair Navarro 
+
+
+Codigo Base de datos
+
+CREATE DATABASE gestion_usuarios_personalizada;
+USE gestion_usuarios_personalizada;
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    email VARCHAR(100),
+    edad INT
+);
+
+INSERT INTO usuarios (nombre, email, edad) VALUES
+('Veronica Gonzales', 'veronica.gonzales@email.com', 26),
+('José Gomez', 'jose.gomez@email.com', 34),
+('Amelia Del Carmen', 'amelia.carmen@email.com', 23),
+('Lucy De Saucedo', 'lucy.saucedo@email.com', 41),
+('María Vega', 'maria.vega@email.com', 29),
+('Pedro Cano', 'pedro.cano@email.com', 24),
+('Jenelyz Gutierrez', 'jenelyz.gutierrez@email.com', 28),
+('Ester Rodriguez', 'ester.rodriguez@email.com', 32),
+('Sol Benson', 'sol.benson@email.com', 30),
+('David Fernandez', 'david.fernandez@email.com', 33);
+
+
+
+
+
+Codigo API
+
+from flask import Flask, request, jsonify
+import mysql.connector
+
+app = Flask(__name__)
+
+# conexión con MySQL
+db_config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'OuterBanks',
+    'database': 'gestion_usuarios_personalizada'
+}
+
+# crear un nuevo usuario (INSERT)
+@app.route('/usuarios', methods=['POST'])
+def crear_usuario():
+    data = request.json
+    nombre = data.get('nombre')
+    email = data.get('email')
+    edad = data.get('edad')
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO usuarios (nombre, email, edad) VALUES (%s, %s, %s)", (nombre, email, edad))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'message': 'Usuario creado correctamente'}), 201
+
+# obtener todos los usuarios (SELECT)
+@app.route('/usuarios', methods=['GET'])
+def obtener_usuarios():
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM usuarios")
+    usuarios = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return jsonify(usuarios), 200
+
+# obtener un usuario por ID (SELECT por ID)
+@app.route('/usuarios/<int:id>', methods=['GET'])
+def obtener_usuario(id):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
+    usuario = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if usuario:
+        return jsonify(usuario), 200
+    else:
+        return jsonify({'message': 'Usuario no encontrado'}), 404
+
+# actualizar o editar un usuario por ID (UPDATE)
+@app.route('/usuarios/<int:id>', methods=['PUT'])
+def actualizar_usuario(id):
+    data = request.json
+    nombre = data.get('nombre')
+    email = data.get('email')
+    edad = data.get('edad')
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    cursor.execute("UPDATE usuarios SET nombre = %s, email = %s, edad = %s WHERE id = %s", (nombre, email, edad, id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    return jsonify({'message': 'Usuario actualizado correctamente'}), 200
+
+# eliminar un usuario por ID (DELETE)
+@app.route('/usuarios/<int:id>', methods=['DELETE'])
+def eliminar_usuario(id):
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return jsonify({'message': 'Usuario eliminado correctamente'}), 200
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+
+
+Caso de Uso
+Gestión de clientes en una tienda Online
+
+Una tienda en línea desea gestionar la información de sus clientes. A través de una API, el sistema debe ser capaz de registrar nuevos clientes, 
+actualizar sus datos, consultar la lista de clientes existentes y eliminar cuentas de clientes cuando sea necesario.
+
+Realizacion del procedimiento para llevar acabo estas funciones
+
+1. Registrar un Cliente (POST)
+
+El administrador de la tienda puede agregar un nuevo cliente con su nombre, correo electrónico y edad.
+Ejemplo: {
+  "nombre": "Jennifer Saucedo",
+  "email": "jennifer.saucedo@gmail.com",
+  "edad": "32"
+}
+
+2. Consultar la Lista de Clientes (GET)
+
+El administrador puede consultar todos los clientes registrados en la tienda.
+Ejemplo: [
+  {
+    "id": 5,
+    "nombre": "María Vega",
+    "email": "maría.vega@email.com",
+    "edad":"29"
+  },
+  {
+    "id": 2,
+    "nombre": "José Gomez",
+    "email": "jose.gomez@email.com",
+    "edad": "34"
+  }
+]
+
+3. Editar o actuallizar la Información o datos de un Cliente (PUT)
+
+El administrador puede cambiar la información de un cliente, como su edad o nombre o lo que se requiera editar del cliente.
+Ejemplo antes y despúes: {
+  "nombre": "María Vega",
+  "email": "maria.vega@email.com",
+  "edad": "29"
+}
+
+{
+  "nombre": "María Sanchéz",
+  "email": "maria.sanchez@email.com",
+  "edad": "34"
+}
+
+4. Eliminar un Cliente (DELETE)
+
+Permite al administrador eliminar la cuenta de un cliente o todos los clientes de la tienda online.
 
