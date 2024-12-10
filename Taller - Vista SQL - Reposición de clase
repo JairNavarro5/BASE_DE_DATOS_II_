@@ -1,1 +1,137 @@
+BASE DE DATOS II (III CUATRIMESTRE 2024)
+Taller - Vitsa SQL - Reposición de clase
+Jair Navarro 8-1000-1724
+
+Codigo (Base de datos) de proveedores, partes y taller
+
+CREATE DATABASE Taller_Vistasql;
+USE Taller_Vistasql;
+
+CREATE TABLE Proveedores (
+    IdProveedor INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Status INT NOT NULL,
+    Ciudad VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Partes (
+    IdParte INT AUTO_INCREMENT PRIMARY KEY,
+    Nombre VARCHAR(100) NOT NULL,
+    Color VARCHAR(50) NOT NULL,
+    Peso DECIMAL(10,2) NOT NULL,
+    Precio DECIMAL(10,2) NOT NULL,
+    Ciudad VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Taller (
+    IdTaller INT AUTO_INCREMENT PRIMARY KEY,
+    IdProveedor INT NOT NULL,
+    IdParte INT NOT NULL,
+    Cantidad INT NOT NULL,
+    FOREIGN KEY (IdProveedor) REFERENCES Proveedores(IdProveedor),
+    FOREIGN KEY (IdParte) REFERENCES Partes(IdParte)
+);
+
+INSERT INTO Proveedores (Nombre, Status, Ciudad) VALUES
+('Smith', 20, 'Londres'),
+('Jones', 10, 'París'),
+('Blake', 30, 'París'),
+('Clark', 20, 'Londres'),
+('Adams', 30, 'Atenas');
+
+INSERT INTO Partes (Nombre, Color, Peso, Precio, Ciudad) VALUES
+('Tuerca', 'Rojo', 12.00, 5.50, 'Londres'),
+('Perno', 'Verde', 17.00, 6.00, 'París'),
+('Tornillo', 'Azul', 17.00, 4.20, 'Roma'),
+('Tornillo', 'Rojo', 14.00, 3.75, 'Londres'),
+('Leva', 'Azul', 12.00, 2.50, 'París'),
+('Engranaje', 'Rojo', 19.00, 7.00, 'Londres');
+
+INSERT INTO Taller (IdProveedor, IdParte, Cantidad) VALUES
+(1, 1, 200),
+(1, 1, 700),
+(2, 3, 400),
+(2, 3, 200),
+(2, 3, 200),
+(2, 3, 200),
+(3, 3, 200),
+(3, 4, 500),
+(4, 6, 300),
+(4, 6, 300),
+(5, 2, 200),
+(5, 5, 500),
+(5, 1, 100),
+(5, 5, 500),
+(5, 6, 500);
+
+DELIMITER //
+CREATE PROCEDURE ObtenerPartesPorProveedor(IN proveedorId INT)
+BEGIN
+    SELECT P.Nombre AS Parte, P.Color, P.Peso, P.Precio, P.Ciudad
+    FROM Taller T
+    INNER JOIN Partes P ON T.IdParte = P.IdParte
+    WHERE T.IdProveedor = proveedorId;
+END //
+DELIMITER ;
+
+CALL ObtenerPartesPorProveedor(1);
+
+DELIMITER //
+CREATE PROCEDURE ObtenerProveedoresConPartes()
+BEGIN
+    SELECT Pr.Nombre AS Proveedor, Pr.Ciudad AS CiudadProveedor, COUNT(T.IdParte) AS TotalPartes
+    FROM Taller T
+    INNER JOIN Proveedores Pr ON T.IdProveedor = Pr.IdProveedor
+    GROUP BY Pr.Nombre, Pr.Ciudad;
+END //
+DELIMITER ;
+
+CALL ObtenerProveedoresConPartes();
+
+CREATE VIEW VistaPartesProveedores AS
+SELECT P.Nombre AS Parte, P.Color, P.Peso, P.Precio, P.Ciudad AS CiudadParte, Pr.Nombre AS Proveedor, Pr.Ciudad AS CiudadProveedor
+FROM Taller T
+INNER JOIN Partes P ON T.IdParte = P.IdParte
+INNER JOIN Proveedores Pr ON T.IdProveedor = Pr.IdProveedor;
+
+SELECT * FROM VistaPartesProveedores;
+
+CREATE VIEW VistaProveedoresConMas200Partes AS
+SELECT Pr.Nombre AS Proveedor, SUM(T.Cantidad) AS TotalPartes
+FROM Taller T
+INNER JOIN Proveedores Pr ON T.IdProveedor = Pr.IdProveedor
+GROUP BY Pr.Nombre
+HAVING SUM(T.Cantidad) > 200;
+
+SELECT * FROM VistaProveedoresConMas200Partes;
+
+CREATE VIEW VistaPartesMasCaras AS
+SELECT Nombre, Precio
+FROM Partes
+ORDER BY Precio DESC
+LIMIT 3;
+
+SELECT * FROM VistaPartesMasCaras;
+
+CREATE VIEW VistaResumenCantidadPorParte AS
+SELECT P.Nombre AS Parte, SUM(T.Cantidad) AS TotalCantidad
+FROM Taller T
+INNER JOIN Partes P ON T.IdParte = P.IdParte
+GROUP BY P.Nombre;
+
+SELECT * FROM VistaResumenCantidadPorParte;
+
+CREATE VIEW VistaDetalleTaller AS
+SELECT T.IdTaller, Pr.Nombre AS Proveedor, P.Nombre AS Parte, T.Cantidad
+FROM Taller T
+INNER JOIN Proveedores Pr ON T.IdProveedor = Pr.IdProveedor
+INNER JOIN Partes P ON T.IdParte = P.IdParte;
+
+SELECT * FROM VistaDetalleTaller;
+
+
+DOCUMENTO CON EL DETALLE DE LOS REPORTES
+LINK DRIVE
+https://drive.google.com/file/d/1jCpYzSNI4vfiucgXc5nOO5muwY2KFIZm/view?usp=sharing
+
 
